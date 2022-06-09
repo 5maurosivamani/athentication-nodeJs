@@ -1,8 +1,8 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const ejs = require("ejs")
-const { default: mongoose, mongo } = require("mongoose")
-// const mongoose = require("mongoose")
+const mongoose = require("mongoose")
+const encrypt  = require("mongoose-encryption")
 
 const app = express()
 
@@ -14,10 +14,14 @@ app.use(express.static("public"))
 
 mongoose.connect("mongodb://localhost:27017/userDB")
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
     email: String,
     password: String
 })
+
+const encryptKey = "MERN"
+
+userSchema.plugin(encrypt, { secret: encryptKey,  encryptedFields: ["password"] })
 
 const User = mongoose.model("User", userSchema)
 
@@ -60,7 +64,7 @@ app.post("/login", (req, res) => {
             if(foundResult) {
                 if(foundResult.password === password) {
                     res.render("secrets")
-                }
+                } 
             } 
         }
     })
